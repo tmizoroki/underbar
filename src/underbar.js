@@ -163,9 +163,17 @@
   _.reduce = function(collection, iterator, accumulator) {
     var memo = accumulator;
 
-    if(memo === undefined) {
-      memo = collection[0];
-      collection.shift();
+    if(accumulator === undefined) {
+      if(Array.isArray(collection)) {
+        memo = collection.shift();
+      } else {
+        var keys = [];
+        for (var key in collection) {
+          keys.push(key);
+        }
+        memo = collection[keys[0]];
+        delete collection[keys[0]];
+      }
     }
     _.each(collection, function(item) {
       memo = iterator(memo, item);
