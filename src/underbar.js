@@ -193,7 +193,7 @@
     if(!iterator) {
       iterator = _.identity;
     }
-    
+
     return _.reduce(collection, function(stillTrue, item) {
       if (!stillTrue) {
         return false;
@@ -206,8 +206,16 @@
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
-  };
+    if(!iterator) {
+      iterator = _.identity;
+    }
 
+    var allFalse =  _.every(collection, function(item) {
+      return Boolean(iterator(item)) === false;
+    });
+
+    return allFalse ? false : true;
+  };
 
   /**
    * OBJECTS
