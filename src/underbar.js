@@ -301,6 +301,21 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    var args;
+    var argumentList = [];
+    var resultList = [];
+
+    return function() {
+      args = Array.prototype.slice.call(arguments);
+      var alreadyCalled = !(_.indexOf(argumentList, args.join(",")) === -1);
+      if(!alreadyCalled) {
+        console.log("inside");
+        var result = func.apply(this, arguments);
+        argumentList.push(args.join(","));
+        resultList.push(result);
+      }
+      return resultList[_.indexOf(argumentList, args.join(","))];
+    };
   };
 
   // Delays a function for the given number of milliseconds, and then calls
