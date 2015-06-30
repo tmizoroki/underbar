@@ -115,8 +115,8 @@
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
     var transform = [];
-    _.each(collection, function(item) {
-      transform.push(iterator(item));
+    _.each(collection, function(item, index) {
+      transform.push(iterator(item, index));
     });
     
     return transform;
