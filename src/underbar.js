@@ -309,7 +309,6 @@
       args = Array.prototype.slice.call(arguments);
       var alreadyCalled = !(_.indexOf(argumentList, args.join(",")) === -1);
       if(!alreadyCalled) {
-        console.log("inside");
         var result = func.apply(this, arguments);
         argumentList.push(args.join(","));
         resultList.push(result);
@@ -325,8 +324,8 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    setTimeout.apply(this, arguments);
   };
-
 
   /**
    * ADVANCED COLLECTION OPERATIONS
