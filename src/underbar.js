@@ -94,7 +94,7 @@
     // copying code in and modifying it
     return _.filter(collection, function(item) {
       return !test(item);
-    })
+    });
   };
 
   // Produce a duplicate-free version of the array.
@@ -307,7 +307,7 @@
 
     return function() {
       args = Array.prototype.slice.call(arguments);
-      var alreadyCalled = !(_.indexOf(argumentList, args.join(",")) === -1);
+      var alreadyCalled = (_.indexOf(argumentList, args.join(",")) !== -1);
       if(!alreadyCalled) {
         var result = func.apply(this, arguments);
         argumentList.push(args.join(","));
@@ -341,7 +341,7 @@
     var copyArray = array.slice();
     var randomArray = [];
     for(var i = 0; i < array.length; i++) {
-      var randomIndex = Math.floor(Math.random() * array.length - i - 1)
+      var randomIndex = Math.floor(Math.random() * array.length - i - 1);
       randomArray.push(copyArray.splice(randomIndex, 1)[0]);
     }
     return randomArray;
@@ -359,6 +359,9 @@
   // Calls the method named by functionOrKey on each value in the list.
   // Note: You will need to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
+    _.each(collection, function(item) {
+
+    });
   };
 
   // Sort the object's values by a criterion produced by an iterator.
