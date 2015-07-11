@@ -430,6 +430,22 @@
   // Takes an arbitrary number of arrays and produces an array that contains
   // every item shared between all the passed-in arrays.
   _.intersection = function() {
+    var args = Array.prototype.slice.call(arguments);
+    var shared = [];
+
+    _.each(args[0], function(item) {
+      var isInEvery = function() {
+        return _.every(args, function(array) {
+          return _.contains(array, item);
+        });
+      };
+
+      if (isInEvery()) {
+        shared.push(item);
+      }
+    });
+
+    return shared;
   };
 
   // Take the difference between one array and a number of other arrays.
