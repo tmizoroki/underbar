@@ -395,10 +395,14 @@
       });
     };
 
+    var getItems = function(oldGroup) {
+      return oldGroup[i];
+    };
+
+    var newGroup;
+
     for (i = 0; hasMoreToZip(i); i++) {
-      var newGroup = _.map(unzipped, function(oldGroup) {
-        return oldGroup[i];
-      });
+      newGroup = _.map(unzipped, getItems);
       zipped.push(newGroup);
     }
 
