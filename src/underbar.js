@@ -342,12 +342,16 @@
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
     var copyArray = array.slice();
-    var randomArray = [];
-    for(var i = 0; i < array.length; i++) {
-      var randomIndex = Math.floor(Math.random() * array.length - i - 1);
-      randomArray.push(copyArray.splice(randomIndex, 1)[0]);
+    var randomIndex;
+    var temp;
+    
+    for(var i = copyArray.length - 1; i > 0; --i) {
+      randomIndex = Math.floor(Math.random() * (i + 1));
+      temp = copyArray[randomIndex];
+      copyArray[randomIndex] = copyArray[i];
+      copyArray[i] = temp;
     }
-    return randomArray;
+    return copyArray;
   };
 
 
@@ -500,7 +504,7 @@
 
     return function() {
       if (!alreadyCalled) {
-        func.apply(this, arguments);
+        func.apply(null, arguments);
         alreadyCalled = true;
         _.delay(function() {alreadyCalled = false;}, wait);
       }
