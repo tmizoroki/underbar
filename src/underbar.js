@@ -47,12 +47,12 @@
   // Note: _.each does not have a return value, but rather simply runs the
   // iterator function over each item in the input collection.
   _.each = function(collection, iterator) {
-    if(Array.isArray(collection)) {
-      for(var i = 0; i < collection.length; i++) {
+    if (Array.isArray(collection)) {
+      for (var i = 0; i < collection.length; i++) {
         iterator(collection[i], i, collection);
       }
     } else { //Should I be more specific with an else if?
-      for(var key in collection) {
+      for (var key in collection) {
         iterator(collection[key], key, collection);
       }
     }
@@ -80,7 +80,7 @@
     var pass = [];
 
     _.each(collection, function(item) {
-      if(test(item)) {
+      if (test(item)) {
         pass.push(item);
       }
     });
@@ -101,7 +101,7 @@
   _.uniq = function(array) {
     var unique = [];
     _.each(array, function(item) {
-      if(_.indexOf(unique, item) === -1) {
+      if (!(_.contains(unique, item))) {
         unique.push(item);
       }
     });
@@ -187,14 +187,13 @@
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
-    if(!iterator) {
-      iterator = _.identity;
-    }
+    iterator = iterator || _.identity;
 
     return _.reduce(collection, function(stillTrue, item) {
       if (!stillTrue) {
         return false;
       }
+
       return Boolean(iterator(item)) === true;
     }, true);
   };
@@ -203,15 +202,13 @@
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
-    if(!iterator) {
-      iterator = _.identity;
-    }
+    iterator = iterator || _.identity;
 
     var allFalse =  _.every(collection, function(item) {
       return Boolean(iterator(item)) === false;
     });
 
-    return allFalse ? false : true;
+    return !allFalse;
   };
 
   /**
@@ -308,7 +305,7 @@
     return function() {
       args = Array.prototype.slice.call(arguments);
       var alreadyCalled = (_.indexOf(argumentList, args.join(",")) !== -1);
-      if(!alreadyCalled) {
+      if (!alreadyCalled) {
         var result = func.apply(this, arguments);
         argumentList.push(args.join(","));
         resultList.push(result);
@@ -345,7 +342,7 @@
     var randomIndex;
     var temp;
     
-    for(var i = copyArray.length - 1; i > 0; --i) {
+    for (var i = copyArray.length - 1; i > 0; --i) {
       randomIndex = Math.floor(Math.random() * (i + 1));
       temp = copyArray[randomIndex];
       copyArray[randomIndex] = copyArray[i];
@@ -368,7 +365,7 @@
   _.invoke = function(collection, functionOrKey, args) {
     var funcArgs = Array.prototype.slice.call(arguments, 2);
     return _.map(collection, function(value) {
-      if(typeof functionOrKey === 'function') {
+      if (typeof functionOrKey === 'function') {
         return functionOrKey.apply(value, funcArgs);
       } else {
         return value[functionOrKey].apply(value, funcArgs);
@@ -385,27 +382,33 @@
     var sorted = [];
     var lowest;
     var lowPos;
-    if(typeof iterator === 'string') {
-      while (unsorted.length > 0) {
-        lowest = _.reduce(unsorted, function(lowObj, curObj) {
-          return lowObj[iterator] <= curObj[iterator] ? lowObj : curObj;
-        });
-        lowPos = _.indexOf(unsorted, lowest);
-        sorted.push(unsorted.splice(lowPos, 1)[0]);
+    var lowObjVal;
+    var curObjVal;
+
+    var findValue = function(lowObj, curObj) {
+      if (typeof iterator === 'string') {
+        lowObjVal = lowObj[iterator];
+        curObjVal = curObj[iterator];
+      } else {
+        lowObjVal = iterator(lowObj);
+        curObjVal = iterator(curObj);
       }
-    } else {
-      while (unsorted.length > 0) {
-        lowest = _.reduce(unsorted, function(lowObj, curObj) {
-          if (iterator(lowObj) <= iterator(curObj) || iterator(curObj) === undefined) {
-            return lowObj;
-          } else {
-            return curObj;
-          }
-        });
-        lowPos = _.indexOf(unsorted, lowest);
-        sorted.push(unsorted.splice(lowPos, 1)[0]);
-      }
+    };
+    
+    while (unsorted.length > 0) {
+      lowest = _.reduce(unsorted, function(lowObj, curObj) {
+        findValue(lowObj, curObj);
+        
+        if (lowObjVal <= curObjVal || curObjVal === undefined) {
+          return lowObj;
+        } else {
+          return curObj;
+        }
+      });
+      lowPos = _.indexOf(unsorted, lowest);
+      sorted.push(unsorted.splice(lowPos, 1)[0]);
     }
+    
     return sorted;
   };
 
@@ -446,6 +449,15 @@
   _.flatten = function(nestedArray, result) {
     var flattenedArray = [];
 
+    /*if (Array.isArray(nestedArray)) {
+      _.each(nestedArray, function(item) {
+        flattenedArray = flattenedArray.concat(_.flatten(item));
+      });
+      return flattenedArray;
+    }
+
+    return [nestedArray];*/
+
     var getAllItems = function(item) {
       if (Array.isArray(item)) {
         _.each(item, function(nestedItem) {
@@ -457,7 +469,6 @@
     };
 
     getAllItems(nestedArray);
-
     return flattenedArray;
   };
 
@@ -465,21 +476,12 @@
   // every item shared between all the passed-in arrays.
   _.intersection = function() {
     var args = Array.prototype.slice.call(arguments);
-    var shared = [];
 
-    _.each(args[0], function(item) {
-      var isInEvery = function() {
-        return _.every(args, function(array) {
-          return _.contains(array, item);
-        });
-      };
-
-      if (isInEvery()) {
-        shared.push(item);
-      }
+    return _.filter(args[0], function(item) {
+      return _.every(args, function(array) {
+        return _.contains(array, item);
+      });
     });
-
-    return shared;
   };
 
   // Take the difference between one array and a number of other arrays.
@@ -506,7 +508,10 @@
       if (!alreadyCalled) {
         func.apply(null, arguments);
         alreadyCalled = true;
-        _.delay(function() {alreadyCalled = false;}, wait);
+        
+        _.delay(function() {
+          alreadyCalled = false;
+        }, wait);
       }
     };
   };
